@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-71616695ea74fa7108f1131d9b8e151bc5bab7cc",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/AdmissionEscrow.sol": "project/contracts/AdmissionEscrow.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/AdmissionEscrow.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\ncontract AdmissionEscrow {\r\n\r\n    address public student;\r\n    address public teacher;\r\n    uint public fee;\r\n\r\n    enum Status { Created, Paid, Released, Refunded }\r\n    Status public status;\r\n\r\n    constructor(address _teacher) {\r\n        student = msg.sender;     // student deploys\r\n        teacher = _teacher;\r\n        status = Status.Created;\r\n    }\r\n\r\n    // 1️⃣ Student pays fee\r\n    function payFee() public payable {\r\n        require(msg.sender == student, \"Only student can pay\");\r\n        require(status == Status.Created, \"Already paid\");\r\n        require(msg.value > 0, \"Send some ETH\");\r\n\r\n        fee = msg.value;\r\n        status = Status.Paid;\r\n    }\r\n\r\n    // 2️⃣ Teacher confirms admission → release funds\r\n    function confirmAdmission() public {\r\n        require(msg.sender == teacher, \"Only teacher\");\r\n        require(status == Status.Paid, \"Fee not paid\");\r\n\r\n        status = Status.Released;\r\n        (bool success, ) = payable(teacher).call{value: fee}(\"\");\r\n        require(success, \"Transfer failed\");\r\n    }\r\n\r\n    // 3️⃣ Teacher rejects → refund\r\n    function rejectAdmission() public {\r\n        require(msg.sender == teacher, \"Only teacher\");\r\n        require(status == Status.Paid, \"Fee not paid\");\r\n\r\n        status = Status.Refunded;\r\n        (bool success, ) = payable(student).call{value: fee}(\"\");\r\n        require(success, \"Transfer failed\");\r\n    }\r\n}"
+      }
+    }
+  }
+}

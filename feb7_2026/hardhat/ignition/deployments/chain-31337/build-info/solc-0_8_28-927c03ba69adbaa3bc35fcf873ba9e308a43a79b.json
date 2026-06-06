@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-927c03ba69adbaa3bc35fcf873ba9e308a43a79b",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/PaymentReceiver.sol": "project/contracts/PaymentReceiver.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/PaymentReceiver.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\ncontract PaymentReceiver {\r\n    address public owner;\r\n    event PaymentReceived(address sender, uint256 amount);\r\n\r\n    constructor() {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    receive() external payable {\r\n        emit PaymentReceived(msg.sender, msg.value);\r\n    }\r\n\r\n    // Optional: anyone can send ETH directly to this contract\r\n    fallback() external payable {\r\n        emit PaymentReceived(msg.sender, msg.value);\r\n    }\r\n\r\n    // For demo: withdraw all to owner\r\n    function withdraw() external {\r\n        require(msg.sender == owner, \"Only owner\");\r\n        payable(owner).transfer(address(this).balance);\r\n    }\r\n}"
+      }
+    }
+  }
+}

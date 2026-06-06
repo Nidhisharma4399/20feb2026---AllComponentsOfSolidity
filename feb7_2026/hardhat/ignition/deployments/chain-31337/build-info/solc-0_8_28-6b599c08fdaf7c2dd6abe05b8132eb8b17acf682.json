@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-6b599c08fdaf7c2dd6abe05b8132eb8b17acf682",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/SimpleEscrow.sol": "project/contracts/SimpleEscrow.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/SimpleEscrow.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\ncontract SimpleEscrow {\r\n    address public buyer;\r\n    address payable public seller;\r\n    uint256 public amount;\r\n\r\n    bool public deposited = false;\r\n    bool public released = false;\r\n\r\n    event Deposited(address buyer, uint256 amount);\r\n    event Released(address seller, uint256 amount);\r\n\r\n    constructor(address _buyer, address payable _seller, uint256 _amount) {\r\n        buyer = _buyer;\r\n        seller = _seller;\r\n        amount = _amount;\r\n    }\r\n\r\n    function deposit() external payable {\r\n        require(msg.sender == buyer, \"Only buyer can deposit\");\r\n        require(!deposited, \"Already deposited\");\r\n        require(msg.value == amount, \"Must send exact amount\");\r\n\r\n        deposited = true;\r\n        emit Deposited(msg.sender, msg.value);\r\n    }\r\n\r\n    function release() external {\r\n        require(msg.sender == buyer, \"Only buyer can release\");\r\n        require(deposited, \"Nothing deposited\");\r\n        require(!released, \"Already released\");\r\n\r\n        released = true;\r\n        seller.transfer(amount);\r\n        emit Released(seller, amount);\r\n    }\r\n}"
+      }
+    }
+  }
+}
